@@ -136888,6 +136888,7 @@ var User =
 /** @class */
 function () {
   function User() {
+    this.color = 'red';
     this.name = faker_1.default.name.firstName();
     this.location = {
       lat: parseFloat(faker_1.default.address.latitude()),
@@ -136895,10 +136896,51 @@ function () {
     };
   }
 
+  User.prototype.showContent = function () {
+    return "User Content";
+  };
+
   return User;
 }();
 
 exports.User = User;
+},{"faker":"node_modules/faker/index.js"}],"src/Company.ts":[function(require,module,exports) {
+"use strict";
+
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Company = void 0;
+
+var faker_1 = __importDefault(require("faker"));
+
+var Company =
+/** @class */
+function () {
+  function Company() {
+    this.color = 'red';
+    this.companyName = faker_1.default.company.companyName();
+    this.catchPhrase = faker_1.default.company.catchPhrase();
+    this.location = {
+      lat: parseFloat(faker_1.default.address.latitude()),
+      lng: parseFloat(faker_1.default.address.longitude())
+    };
+  }
+
+  Company.prototype.showContent = function () {
+    return "\n    <div>\n      <h2>Name: ".concat(this.companyName, "</h2>\n      <h3>Catch Phrase: ").concat(this.catchPhrase, "</h3>\n    </div>\n    ");
+  };
+
+  return Company;
+}();
+
+exports.Company = Company;
 },{"faker":"node_modules/faker/index.js"}],"src/CustomMap.ts":[function(require,module,exports) {
 "use strict";
 
@@ -136918,19 +136960,39 @@ function () {
         lng: 0
       }
     });
-  }
+  } //REFACTOR ONE (COMMONIZE THE CLASS ARGUMENT BY SPECIFICITY )
 
-  CustomMap.prototype.addUserMarker = function (user) {
+
+  CustomMap.prototype.addMarkerWrong = function (entity) {
     new google.maps.Marker({
       map: this.googleMap,
       position: {
-        lat: user.location.lat,
-        lng: user.location.lng
+        lat: entity.location.lat,
+        lng: entity.location.lng
+      }
+    }); // entity.catchPhrase // INACCESSIBLE
+  }; //REFACTOR TWO (REQUIRE THE COMMON ATTRIBUTES (NEEDED FOR IMPLEMENTATION))
+
+
+  CustomMap.prototype.addMarker = function (entity) {
+    var _this = this;
+
+    var marker = new google.maps.Marker({
+      map: this.googleMap,
+      position: {
+        lat: entity.location.lat,
+        lng: entity.location.lng
       }
     });
+    entity.name ? console.log(entity.name) : null;
+    entity.companyName ? console.log(entity.companyName) : null;
+    marker.addListener('click', function () {
+      var infoWindow = new google.maps.InfoWindow({
+        content: entity.showContent()
+      });
+      infoWindow.open(_this.googleMap, marker);
+    });
   };
-
-  CustomMap.prototype.addCompanyMarker = function (company) {};
 
   return CustomMap;
 }();
@@ -136943,14 +137005,18 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 }); /// <reference types="@types/google.maps" />
 
-var User_1 = require("./User"); // import { Company } from './Company'
+var User_1 = require("./User");
 
+var Company_1 = require("./Company");
 
 var CustomMap_1 = require("./CustomMap");
 
 var user = new User_1.User();
-new CustomMap_1.CustomMap("map");
-},{"./User":"src/User.ts","./CustomMap":"src/CustomMap.ts"}],"../../../../../.nvm/versions/node/v14.19.3/lib/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+var company = new Company_1.Company();
+var customMap = new CustomMap_1.CustomMap("map");
+customMap.addMarker(user);
+customMap.addMarker(company);
+},{"./User":"src/User.ts","./Company":"src/Company.ts","./CustomMap":"src/CustomMap.ts"}],"../../../../../.nvm/versions/node/v14.19.3/lib/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
